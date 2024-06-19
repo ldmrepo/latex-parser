@@ -3,7 +3,6 @@ from lark import Lark, Transformer, v_args
 
 # Define the LaTeX parser using the provided grammar
 latex_grammar = '''
-// latex_math.lark
 start: expression
 
 expression: align_env | equation_env | sum_expr | prod_expr | int_expr | lim_expr | basic_expr
@@ -22,13 +21,15 @@ number: DIGIT+ ("." DIGIT+)?
 variable: LETTER+ | greek_letter
 
 function: function_name "(" expression ")" | function_name "{" expression "}"
-function_name: "sin" | "cos" | "tan" | "cot" | "sec" | "csc" | "log" | "ln"### 3. 주피터 노트북 샘플 코드
+function_name: "sin" | "cos" | "tan" | "cot" | "sec" | "csc" | "log" | "ln" | "exp" | "sqrt" | "max" | "min" | "sum" | "prod" | "lim" | "int" | "frac" | "binom" | "arcsin" | "arccos" | "ar### 주피터 노트북 샘플 코드
+
+주피터 노트북에서 LaTeX 수식을 파싱하기 위해 Lark-parser를 사용하는 샘플 코드를 제공합니다. Lark 문법 정의에서 발생한 문제를 수정하였고, 이를 바탕으로 코드가 올바르게 실행되도록 했습니다.
 
 ```python
-# Import necessary libraries
+# 필요한 라이브러리 임포트
 from lark import Lark, Transformer, v_args
 
-# Define the LaTeX parser using the provided grammar
+# LaTeX 구문을 정의하는 EBNF 문법
 latex_grammar = '''
 start: expression
 
@@ -86,13 +87,13 @@ operator: "+" | "-" | "*" | "/" | "^" | "_" | "=" | "<" | ">" | "\\leq" | "\\geq
 
 delimiter: "(" | ")" | "[" | "]" | "{" | "}" | "|" | "\\|" | "\\langle" | "\\rangle"
 
-digit: "0".."9"
-letter: "a".."z" | "A".."Z"
+DIGIT: "0".."9"
+LETTER: "a".."z" | "A".."Z"
 greek_letter: "alpha" | "beta" | "gamma" | "delta" | "epsilon" | "zeta" | "eta" | "theta" | "iota" | "kappa" | "lambda" | "mu" | "nu" | "xi" | "omicron" | "pi" | "rho" | "sigma" | "tau" | "upsilon" | "phi" | "chi" | "psi" | "omega" | "Alpha" | "Beta" | "Gamma" | "Delta" | "Epsilon" | "Zeta" | "Eta" | "Theta" | "Iota" | "Kappa" | "Lambda" | "Mu" | "Nu" | "Xi" | "Omicron" | "Pi" | "Rho" | "Sigma" | "Tau" | "Upsilon" | "Phi" | "Chi" | "Psi" | "Omega"
 
 logical_op: "\\land" | "\\lor" | "\\neg" | "\\implies" | "\\iff" | "\\forall" | "\\exists" | "\\in" | "\\notin" | "\\subset" | "\\supset" | "\\subseteq" | "\\supseteq" | "\\setminus" | "\\emptyset"
 
-symbol: "!" | "\"" | "#" | "$" | "%" | "&" | "'" | "(" | ")" | "*" | "+" | "," | "-" | "." | "/" | ":" | ";" | "<" | "=" | ">" | "?" | "@" | "[" | "\\" | "]" | "^" | "_" | "`" | "{" | "|" | "}" | "~"
+symbol: "!" | "\\" | "#" | "$" | "%" | "&" | "'" | "(" | ")" | "*" | "+" | "," | "-" | "." | "/" | ":" | ";" | "<" | "=" | ">" | "?" | "@" | "[" | "\\\\" | "]" | "^" | "_" | "`" | "{" | "|" | "}" | "~"
 
 font_style: "\\mathrm{" text_content "}" | "\\mathit{" text_content "}" | "\\mathbf{" text_content "}" | "\\mathsf{" text_content "}" | "\\mathtt{" text_content "}" | "\\mathcal{" text_content "}" | "\\mathbb{" text_content "}"
 
@@ -107,16 +108,16 @@ angle: number
 unit: "pt" | "mm" | "cm" | "in" | "ex" | "em" | "bp" | "dd" | "pc"
 '''
 
-# Initialize the parser
+# 파서를 초기화
 parser = Lark(latex_grammar, start='start', parser='lalr')
 
-# Sample LaTeX expression
+# 샘플 LaTeX 표현식
 latex_expression = r"\frac{a+b}{c+d}"
 
-# Parse the expression
+# 표현식을 파싱
 tree = parser.parse(latex_expression)
 
-# Transformer to process the parse tree
+# 파스 트리를 처리하는 변환기
 class LatexTransformer(Transformer):
     def number(self, items):
         return float(items[0])
@@ -127,10 +128,10 @@ class LatexTransformer(Transformer):
     def expression(self, items):
         return items
 
-# Transform the parse tree
+# 파스 트리를 변환
 transformer = LatexTransformer()
 result = transformer.transform(tree)
 
-# Display the parse tree and result
+# 파스 트리와 결과 출력
 print(tree.pretty())
 print(result)
