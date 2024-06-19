@@ -60,7 +60,7 @@ greek_letter: "alpha" | "beta" | "gamma" | "delta" | "epsilon" | "zeta" | "eta" 
 
 logical_op: "\\land" | "\\lor" | "\\neg" | "\\implies" | "\\iff" | "\\forall" | "\\exists" | "\\in" | "\\notin" | "\\subset" | "\\supset" | "\\subseteq" | "\\supseteq" | "\\setminus" | "\\emptyset"
 
-symbol: "!" | "\"" | "#" | "$" | "%" | "&" | "'" | "(" | ")" | "*" | "+" | "," | "-" | "." | "/" | ":" | ";" | "<" | "=" | ">" | "?" | "@" | "[" | "\\\\" | "]" | "^" | "_" | "`" | "{" | "|" | "}" | "~"
+symbol: "!" | "\\"" | "#" | "$" | "%" | "&" | "'" | "(" | ")" | "*" | "+" | "," | "-" | "." | "/" | ":" | ";" | "<" | "=" | ">" | "?" | "@" | "[" | "\\" | "]" | "^" | "_" | "`" | "{" | "|" | "}" | "~"
 
 font_style: "\\mathrm{" text_content "}" | "\\mathit{" text_content "}" | "\\mathbf{" text_content "}" | "\\mathsf{" text_content "}" | "\\mathtt{" text_content "}" | "\\mathcal{" text_content "}" | "\\mathbb{" text_content "}"
 
