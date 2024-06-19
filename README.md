@@ -3,145 +3,171 @@ LaTeX 수식 문법에 대한 공식 문서를 참조하여 전체 EBNF 정의�
 ### LaTeX 수식 문법 EBNF 개선된 버전
 
 ```ebnf
-latex_math_expressions = 
-    { arithmetic_operators }
-    | { relational_operators }
-    | { set_operators }
-    | { logical_operators }
-    | { miscellaneous_operators }
-    | { greek_letters }
-    | { symbols }
-    | { structures };
+// Main expression
+expression    ::= align_env | equation_env | sum_expr | prod_expr | int_expr | lim_expr | basic_expr
 
-arithmetic_operators = 
-    "+" | "-" | "*" | "/" | "\cdot" | "\times" | "\div";
+// Basic expressions including addition and subtraction
+basic_expr    ::= term (("+" | "-" | "\\pm" | "\\mp" | "\\cup" | "\\cap" | "\\setminus") term)*
 
-relational_operators = 
-    "=" | "\neq" | "\ne" | "<" | ">" | "\leq" | "\le" | "\geq" | "\ge"
-    | "\approx" | "\equiv" | "\sim" | "\simeq" | "\cong" | "\propto"
-    | "\prec" | "\succ" | "\preceq" | "\succeq";
+// Terms including multiplication and division
+term          ::= factor (("*" | "/" | "\\cdot" | "\\times" | "\\div" | "\\land" | "\\lor" | "\\wedge" | "\\vee") factor)*
 
-set_operators = 
-    "\cup" | "\cap" | "\setminus" | "\in" | "\notin" | "\subset" | "\supset"
-    | "\subseteq" | "\supseteq" | "\emptyset" | "\uplus" | "\biguplus";
+// Factors including exponentiation and subscripts
+factor        ::= base ("^" exponent)? ("_" subscript)?
+base          ::= number | variable | function | fraction | sqrt | nroot | matrix | binom | logical_op | "{" expression "}" | "(" expression ")" | overline | underline | text | accent | operator | delimiter | font_style | color
+exponent      ::= factor
+subscript     ::= factor
 
-logical_operators = 
-    "\land" | "\lor" | "\neg" | "\implies" | "\iff" | "\forall" | "\exists";
+// Numbers and variables
+number        ::= digit+ ("." digit+)?
+variable      ::= letter+ | greek_letter
 
-miscellaneous_operators = 
-    "\partial" | "\nabla" | "\infty" | "\angle" | "\measuredangle" | "\sphericalangle"
-    | "\therefore" | "\because" | "\vdots" | "\cdots" | "\ddots" | "\aleph";
+// Functions including trigonometric and logarithmic functions
+function      ::= function_name "(" expression ")" | function_name "{" expression "}"
+function_name ::= "sin" | "cos" | "tan" | "cot" | "sec" | "csc" | "log" | "ln" | "exp" | "sqrt" | "max" | "min" | "sum" | "prod" | "lim" | "int" | "frac" | "binom" | "arcsin" | "arccos" | "arctan" | "sinh" | "cosh" | "tanh"
 
-greek_letters = 
-    greek_lowercase | greek_uppercase;
+// Fractions
+fraction      ::= "\\frac" "{" expression "}" "{" expression "}"
 
-greek_lowercase = 
-    "\alpha" | "\beta" | "\gamma" | "\delta" | "\epsilon" | "\zeta" | "\eta"
-    | "\theta" | "\iota" | "\kappa" | "\lambda" | "\mu" | "\nu" | "\xi"
-    | "\omicron" | "\pi" | "\rho" | "\sigma" | "\tau" | "\upsilon"
-    | "\phi" | "\chi" | "\psi" | "\omega";
+// Square roots and nth roots
+sqrt          ::= "\\sqrt" "{" expression "}"
+nroot         ::= "\\sqrt" "[" expression "]" "{" expression "}"
 
-greek_uppercase = 
-    "\Alpha" | "\Beta" | "\Gamma" | "\Delta" | "\Epsilon" | "\Zeta"
-    | "\Eta" | "\Theta" | "\Iota" | "\Kappa" | "\Lambda" | "\Mu" | "\Nu"
-    | "\Xi" | "\Omicron" | "\Pi" | "\Rho" | "\Sigma" | "\Tau" | "\Upsilon"
-    | "\Phi" | "\Chi" | "\Psi" | "\Omega";
+// Binomial coefficients
+binom         ::= "\\binom" "{" expression "}" "{" expression "}"
 
-symbols = 
-    "\sum" | "\int" | "\oint" | "\prod" | "\coprod" | "\partial" | "\nabla" | "\infty";
+// Matrices
+matrix        ::= "\\begin{matrix}" matrix_rows "\\end{matrix}" |
+                  "\\begin{pmatrix}" matrix_rows "\\end{pmatrix}" |
+                  "\\begin{bmatrix}" matrix_rows "\\end{bmatrix}" |
+                  "\\begin{Bmatrix}" matrix_rows "\\end{Bmatrix}" |
+                  "\\begin{vmatrix}" matrix_rows "\\end{vmatrix}" |
+                  "\\begin{Vmatrix}" matrix_rows "\\end{Vmatrix}"
+matrix_rows   ::= matrix_row ("\\\\" matrix_row)*
+matrix_row    ::= expression ("&" expression)*
 
-structures = 
-    fraction
-    | square_root
-    | nth_root
-    | binomial_coefficient
-    | exponent
-    | subscript
-    | matrix
-    | equation_environment
-    | bracket
-    | overline
-    | underline
-    | text
-    | accent;
+// Align and equation environments
+align_env     ::= "\\begin{align}" align_rows "\\end{align}" |
+                  "\\begin{align*}" align_rows "\\end{align*}"
+align_rows    ::= align_row ("\\\\" align_row)*
+align_row     ::= expression ("&" expression)*
 
-fraction = 
-    "\frac{" expression "}{" expression "}"
-    | "\dfrac{" expression "}{" expression "}"
-    | "\tfrac{" expression "}{" expression "}";
+equation_env  ::= "\\begin{equation}" expression "\\end{equation}" |
+                  "\\begin{equation*}" expression "\\end{equation*}"
 
-square_root = 
-    "\sqrt{" expression "}";
+// Sum, product, and integral with limits
+sum_expr      ::= "\\sum" "_" subscript "^" exponent "{" expression "}"
+prod_expr     ::= "\\prod" "_" subscript "^" exponent "{" expression "}"
+int_expr      ::= "\\int" "_" lower_limit "^" upper_limit "{" expression "}"
+lim_expr      ::= "\\lim" "_" subscript "{" expression "}"
 
-nth_root = 
-    "\sqrt[" expression "]{" expression "}";
+lower_limit   ::= expression
+upper_limit   ::= expression
 
-binomial_coefficient = 
-    "\binom{" expression "}{" expression "}";
+// Overline and underline
+overline      ::= "\\overline" "{" expression "}"
+underline     ::= "\\underline" "{" expression "}"
 
-exponent = 
-    expression "^" "{" expression "}"
-    | expression "^" expression;
+// Text
+text          ::= "\\text" "{" text_content "}"
+text_content  ::= (letter | digit | " " | symbol)*
 
-subscript = 
-    expression "_" "{" expression "}"
-    | expression "_" expression;
+// Accents
+accent        ::= "\\hat" "{" expression "}" |
+                  "\\bar" "{" expression "}" |
+                  "\\vec" "{" expression "}" |
+                  "\\dot" "{" expression "}" |
+                  "\\ddot" "{" expression "}" |
+                  "\\tilde" "{" expression "}" |
+                  "\\breve" "{" expression "}" |
+                  "\\check" "{" expression "}" |
+                  "\\acute" "{" expression "}" |
+                  "\\grave" "{" expression "}"
 
-matrix = 
-    "\begin{" matrix_type "} " matrix_elements "\end{" matrix_type "}";
+// Operators
+operator      ::= "+" | "-" | "*" | "/" | "^" | "_" | "=" | "<" | ">" |
+                  "\\leq" | "\\geq" | "\\neq" | "\\approx" | "\\equiv" | 
+                  "\\sim" | "\\simeq" | "\\cong" | "\\propto" | 
+                  "\\infty" | "\\partial" | "\\nabla" | "\\forall" |
+                  "\\exists" | "\\neg" | "\\land" | "\\lor" | "\\to" |
+                  "\\implies" | "\\iff" | "\\int" | "\\sum" | "\\prod" | 
+                  "\\cup" | "\\cap" | "\\setminus"
 
-matrix_type = 
-    "matrix" | "pmatrix" | "bmatrix" | "Bmatrix" | "vmatrix" | "Vmatrix";
+// Delimiters
+delimiter     ::= "(" | ")" | "[" | "]" | "{" | "}" | "|" | "\\|" | "\\langle" | "\\rangle"
 
-matrix_elements = 
-    expression { "&" expression } { "\\" expression { "&" expression } };
+// Character sets
+digit         ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+letter        ::= "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" 
+                | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" 
+                | "w" | "x" | "y" | "z" | "A" | "B" | "C" | "D" | "E" | "F" | "G" 
+                | "H" | "I" | "J" | "K" | "L" | "M" | "N" | "O" | "P" | "Q" | "R" 
+                | "S" | "T" | "U" | "V" | "W" | "X" | "Y" | "Z"
+greek_letter  ::= "alpha" | "beta" | "gamma" | "delta" | "epsilon" | "zeta" | "eta" |
+                  "theta" | "iota" | "kappa" | "lambda" | "mu" | "nu" | "xi" |
+                  "omicron" | "pi" | "rho" | "sigma" | "tau" | "upsilon" | "phi" |
+                  "chi" | "psi" | "omega" | "Alpha" | "Beta" | "Gamma" | "Delta" |
+                  "Epsilon" | "Zeta" | "Eta" | "Theta" | "Iota" | "Kappa" | "Lambda" |
+                  "Mu" | "Nu" | "Xi" | "Omicron" | "Pi" | "Rho" | "Sigma" | "Tau" |
+                  "Upsilon" | "Phi" | "Chi" | "Psi" | "Omega"
 
-equation_environment = 
-    "\begin{" equation_type "} " expression "\end{" equation_type "}";
+// Logical operators
+logical_op    ::= "\\land" | "\\lor" | "\\neg" | "\\implies" | "\\iff" |
+                  "\\forall" | "\\exists" | "\\in" | "\\notin" | "\\subset" | 
+                  "\\supset" | "\\subseteq" | "\\supseteq" | "\\setminus" | "\\emptyset"
 
-equation_type = 
-    "equation" | "equation*" | "align" | "align*" | "multline" | "multline*";
+// Symbols for text content
+symbol        ::= "!" | "\"" | "#" | "$" | "%" | "&" | "'" | "(" | ")" | "*" | "+" |
+                  "," | "-" | "." | "/" | ":" | ";" | "<" | "=" | ">" | "?" | "@" |
+                  "[" | "\\" | "]" | "^" | "_" | "`" | "{" | "|" | "}" | "~"
 
-bracket = 
-    "\left(" expression "\right)"
-    | "\left[" expression "\right]"
-    | "\left\{" expression "\right\}"
-    | "\left|" expression "\right|"
-    | "\left\langle" expression "\right\rangle"
-    | "\left\lfloor" expression "\right\rfloor"
-    | "\left\lceil" expression "\right\rceil";
+// Font styles
+font_style    ::= "\\mathrm{" text_content "}" |
+                  "\\mathit{" text_content "}" |
+                  "\\mathbf{" text_content "}" |
+                  "\\mathsf{" text_content "}" |
+                  "\\mathtt{" text_content "}" |
+                  "\\mathcal{" text_content "}" |
+                  "\\mathbb{" text_content "}"
 
-overline = 
-    "\overline{" expression "}";
+// Font size
+font_size     ::= "\\tiny" | "\\scriptsize" | "\\footnotesize" | "\\small" |
+                  "\\normalsize" | "\\large" | "\\Large" | "\\LARGE" |
+                  "\\huge" | "\\Huge"
 
-underline = 
-    "\underline{" expression "}";
+// Colors (requires xcolor package)
+color         ::= "\\color{" color_name "}" |
+                  "\\textcolor{" color_name "}{" text_content "}" |
+                  "\\colorbox{" color_name "}{" text_content "}"
+color_name    ::= "red" | "green" | "blue" | "cyan" | "magenta" | "yellow" | "black" | "white" | "gray" | "brown" | "lime" | "olive" | "orange" | "pink" | "purple" | "teal" | "violet"
 
-text = 
-    "\text{" text_content "}";
+// Size adjustment
+size_adjustment ::= "\\scalebox{" factor "}{" expression "}" |
+                    "\\resizebox{" width "}{" height "}{" expression "}" |
+                    "\\rotatebox{" angle "}{" expression "}"
+factor        ::= number
+width         ::= number unit
+height        ::= number unit
+angle         ::= number
+unit          ::= "pt" | "mm" | "cm" | "in" | "ex" | "em" | "bp" | "dd" | "pc"
 
-accent = 
-    "\hat{" expression "}"
-    | "\bar{" expression "}"
-    | "\vec{" expression "}"
-    | "\dot{" expression "}"
-    | "\ddot{" expression "}"
-    | "\tilde{" expression "}"
-    | "\breve{" expression "}"
-    | "\check{" expression "}"
-    | "\acute{" expression "}"
-    | "\grave{" expression "}";
+// Additional mathematical symbols
+additional_math_symbols ::= "\\aleph" | "\\beth" | "\\gimel" | "\\daleth" |
+                            "\\hbar" | "\\imath" | "\\jmath" | "\\ell" | "\\wp" | "\\Re" | "\\Im" |
+                            "\\aleph" | "\\mho" | "\\prime" | "\\emptyset" | "\\infty" | "\\nabla" | "\\surd" |
+                            "\\top" | "\\bot" | "\\angle" | "\\measuredangle" | "\\sphericalangle" |
+                            "\\backslash" | "\\bigtriangleup" | "\\bigtriangledown" | "\\triangleleft" | "\\triangleright" |
+                            "\\lozenge" | "\\bigstar" | "\\blacklozenge" | "\\blacksquare" | "\\blacktriangle" | "\\blacktriangledown" | "\\blacktriangleleft" | "\\blacktriangleright"
 
-expression = 
-    { arithmetic_operators }
-    | { relational_operators }
-    | { set_operators }
-    | { logical_operators }
-    | { miscellaneous_operators }
-    | { greek_letters }
-    | { symbols }
-    | { structures }
-    | { text };
+// Environments for arrays and tabular
+array_env    ::= "\\begin{array}{" alignment "}" array_rows "\\end{array}"
+alignment    ::= "l" | "c" | "r"
+array_rows   ::= array_row ("\\\\" array_row)*
+array_row    ::= expression ("&" expression)*
+
+tabular_env  ::= "\\begin{tabular}{" alignment "}" tabular_rows "\\end{tabular}"
+tabular_rows ::= tabular_row ("\\\\" tabular_row)*
+tabular_row  ::= expression ("&" expression)*
 ```
 
 이 문법 정의는 AMS-LaTeX 가이드 및 CTAN의 amsmath 패키지 문서에서 제공하는 정보를 바탕으로 하여, LaTeX 수식의 다양한 구성 요소를 포괄적으로 다루도록 개선되었습니다.
